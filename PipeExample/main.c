@@ -5,11 +5,15 @@
 
 #define STR_MAX_LEN		0x100
 
+int add(int a, int b)
+{
+	return (a + b);
+}
+
 int main(void)
 {
 	int pfd[2];
 	pid_t child_pid;
-	char data[STR_MAX_LEN] = "pipe message\0";
 	char buf[STR_MAX_LEN];
 
 	pipe(pfd);
@@ -17,18 +21,25 @@ int main(void)
 	if (child_pid < 0) {
 		printf("fork error\n");
 
-		exit(1);
+		exit(-1);
 	}
 
 	if (child_pid == 0) {
-		close(pfd[1]);
+		printf("child: will send message\n");
 		read(pfd[0], buf, STR_MAX_LEN);
-		printf("recevie: %s\n", buf);
-		exit(0);
+		printf("chlid: recevie = %s\n", buf);
+
+		printf("child: will write message\n");
+		write(pfd[1], "meaasge from child", 19);
 	}
 	else {
-		close(pfd[0]);
-		write(pfd[1], data, strnlen(data, STR_MAX_LEN)); 
+		printf("parent: will send message\n");
+		write(pfd[1], "meaasge from pargent", 21); 
+		sleep(1);
+
+		printf("parent: will read message\n");
+		read(pfd[0], buf, STR_MAX_LEN);
+		printf("parent: recevie = %s\n", buf);
 	}
 
 	return 0;
